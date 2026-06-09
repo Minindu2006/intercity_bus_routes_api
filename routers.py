@@ -1,0 +1,47 @@
+from typing import Optional, List
+
+from fastapi import APIRouter
+from starlette import status
+
+from models import BusRouteResponse, BusRouteCreate
+from repository import BusRouteRepository
+from service import BusRouteService
+
+router = APIRouter(
+    prefix="/routes"
+)
+repo = BusRouteRepository()
+service = BusRouteService(repo)
+
+@router.get(
+    "/{route_id}", # Path variables
+    response_model=Optional[BusRouteResponse],
+    status_code=status.HTTP_200_OK
+)
+def get_route_by_id(route_id):
+    route = service.get_by_id(route_id)
+    return route
+
+@router.get(
+    "",
+    response_model=List[BusRouteResponse],
+    status_code=status.HTTP_200_OK
+)
+def get_all_routes(offset: int = 0, limit: int = 10): # Query Parameters
+    routes = service.get_all_routes(offset, limit)
+    return routes
+
+@router.post(
+    "/",
+    response_model=BusRouteResponse,
+    status_code=status.HTTP_201_CREATED
+)
+def create_bus_route(router_request: BusRouteCreate):
+    return service.create_bus_route(router_request)
+
+@router.delete(
+    "/{route_id}",
+    status_code=status.HTTP_200_OK
+)
+def delete_record(route_id: int):
+    return "successfully deleted" if service.delete_record(route_id) else None
