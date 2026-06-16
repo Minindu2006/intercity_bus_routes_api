@@ -3,7 +3,7 @@ from typing import Optional, List
 from fastapi import APIRouter
 from starlette import status
 
-from models import BusRouteResponse, BusRouteCreate
+from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate
 from repository import BusRouteRepository
 from service import BusRouteService
 
@@ -45,3 +45,11 @@ def create_bus_route(router_request: BusRouteCreate):
 )
 def delete_record(route_id: int):
     return "successfully deleted" if service.delete_record(route_id) else None
+
+@router.put(
+    "/{route_id}",
+    response_model=Optional[BusRouteResponse],
+    status_code=status.HTTP_200_OK
+)
+def update_record(route_id: int, router_request: BusRouteUpdate):
+    return service.update_record(router_request, route_id)

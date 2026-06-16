@@ -8,6 +8,9 @@ class BusRouteCreate(BaseModel):
     bus_type: str = Field(..., max_length=50)
     ticket_price: float = Field(..., ge=0)
 
+class BusRouteUpdate(BusRouteCreate):
+    pass
+
 class BusRouteResponse(BusRouteCreate):
     id: int
     

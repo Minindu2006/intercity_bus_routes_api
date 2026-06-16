@@ -3,7 +3,7 @@ from typing import Optional
 from starlette import status
 from starlette.exceptions import HTTPException
 
-from models import BusRouteResponse, BusRouteCreate
+from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate
 from repository import BusRouteRepository
 
 
@@ -43,3 +43,17 @@ class BusRouteService:
 
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to delete record with id {route_id} : {str(e)}")
+
+    def update_record(self, bus_route: BusRouteUpdate, route_id: int):
+        try:
+            updated = self.repo.update_record(bus_route, route_id)
+
+            if not updated:
+                raise HTTPException(status_code=status.HTTP_304_NOT_MODIFIED,
+                                    detail=f"Error hrn modifying bus route with id {route_id}")
+            return updated
+
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail=f"Failed to update record with id {route_id} : {str(e)}")
+

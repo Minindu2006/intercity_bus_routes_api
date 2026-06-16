@@ -2,7 +2,7 @@ from typing import Optional, List
 from psycopg2.extras import RealDictCursor
 
 from database import get_db_connection
-from models import BusRouteResponse, BusRouteCreate
+from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate
 
 
 class BusRouteRepository:
@@ -70,3 +70,29 @@ class BusRouteRepository:
             cursor.close()
             connection.close()
 
+    def update_record(self, bus_route: BusRouteUpdate, route_id: int) -> Optional[BusRouteResponse]:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
+        query = """
+            UPDATE bus_routes
+            SET route_number = %s,
+            start_location = %s,
+            end_location = %s,
+            bus_type = %s,
+            ticket_price = %s WHERE id = %s
+            RETURNING *;
+        """
+        try:
+            cursor.execute(
+                query,
+                (bus_route.route_number, bus_route.start_location, bus_route.end_location, bus_route.bus_type, bus_route.ticket_price, route_id)
+            )
+            updated_route = cursor.fetchone()
+            connection.commit()
+            return BusRouteResponse(**updated_route)
+        except Exception as e:
+            connection.rollback()
+            raise e
+        finally:
+            cursor.close()
+            connection.close()
