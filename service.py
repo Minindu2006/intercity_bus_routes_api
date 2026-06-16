@@ -3,8 +3,8 @@ from typing import Optional
 from starlette import status
 from starlette.exceptions import HTTPException
 
-from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate
-from repository import BusRouteRepository
+from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate, ScheduleCreate
+from repository import BusRouteRepository, ScheduleRepository
 
 
 class BusRouteService:
@@ -57,3 +57,13 @@ class BusRouteService:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                                 detail=f"Failed to update record with id {route_id} : {str(e)}")
 
+
+class ScheduleService:
+    def __init__(self, repo: ScheduleRepository):
+        self.repo = repo
+
+    def create_schedule(self, route_id: int, schedule: ScheduleCreate):
+        try:
+            return self.repo.create_schedule(route_id, schedule)
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to create a record : {str(e)}")

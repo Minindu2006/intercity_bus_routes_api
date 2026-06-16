@@ -2,7 +2,7 @@ from typing import Optional, List
 from psycopg2.extras import RealDictCursor
 
 from database import get_db_connection
-from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate
+from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate, ScheduleCreate, ScheduleResponse
 
 
 class BusRouteRepository:
@@ -90,6 +90,31 @@ class BusRouteRepository:
             updated_route = cursor.fetchone()
             connection.commit()
             return BusRouteResponse(**updated_route)
+        except Exception as e:
+            connection.rollback()
+            raise e
+        finally:
+            cursor.close()
+            connection.close()
+
+
+
+class ScheduleRepository:
+    def create_schedule(self, route_id: int, schedule: ScheduleCreate) -> Optional[ScheduleCreate]:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
+        query = """
+            INSERT INTO schedules
+            (route_id, departure_time, arrival_time, available_seats, status)
+            VALUES (%s, %s::TIME, %s::TIME, %s, %s)
+            RETURNING *
+        """
+        try:
+            cursor.execute(query, (route_id, schedule.departure_time, schedule.arrival_time, schedule.available_seats, schedule.status))
+            new_schedule = cursor.fetchone()
+            connection.commit()
+            return ScheduleResponse(**new_schedule)
+
         except Exception as e:
             connection.rollback()
             raise e

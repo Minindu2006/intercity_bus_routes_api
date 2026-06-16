@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-
+from datetime import time
 
 class BusRouteCreate(BaseModel):
     route_number: str = Field(...,max_length=50)
@@ -13,4 +13,13 @@ class BusRouteUpdate(BusRouteCreate):
 
 class BusRouteResponse(BusRouteCreate):
     id: int
-    
+
+class ScheduleCreate(BaseModel):
+    departure_time: time = Field(...)
+    arrival_time: time = Field(...)
+    available_seats: int = Field(...,ge=0, le=100)
+    status: str = Field(..., max_length=20)
+
+class ScheduleResponse(ScheduleCreate):
+    id: int
+    route_id: int
