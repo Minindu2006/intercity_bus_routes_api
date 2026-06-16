@@ -57,6 +57,14 @@ class BusRouteService:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                                 detail=f"Failed to update record with id {route_id} : {str(e)}")
 
+    def get_by_id_with_schedules(self, route_id):
+        route_with_sch = self.repo.get_by_id_with_schedules(route_id)
+
+        if not route_with_sch:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"No schedules found for route id {route_id}")
+        return route_with_sch
+
 
 class ScheduleService:
     def __init__(self, repo: ScheduleRepository):

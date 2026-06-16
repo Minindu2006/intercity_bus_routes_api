@@ -3,7 +3,8 @@ from typing import Optional, List
 from fastapi import APIRouter
 from starlette import status
 
-from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate, ScheduleResponse, ScheduleCreate
+from models import BusRouteResponse, BusRouteCreate, BusRouteUpdate, ScheduleResponse, ScheduleCreate, \
+    BusRoutesWithSchedules
 from repository import BusRouteRepository, ScheduleRepository
 from service import BusRouteService, ScheduleService
 
@@ -63,3 +64,11 @@ def update_record(route_id: int, router_request: BusRouteUpdate):
 )
 def create_schedule(route_id: int, schedule: ScheduleCreate):
     return scheduleService.create_schedule(route_id, schedule)
+
+@router.get(
+    '/schedules/{route_id}',
+    response_model=BusRoutesWithSchedules,
+    status_code=status.HTTP_200_OK
+)
+def get_by_id_with_schedules(route_id: int):
+    return busService.get_by_id_with_schedules(route_id)
